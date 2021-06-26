@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -33,6 +33,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _times = {};
+  String convertToPmAm(String time) {
+    var firstTwoNums = int.parse(time.substring(0, 2));
+    var theRest = time.substring(2);
+
+    if (firstTwoNums > 12) {
+      firstTwoNums -= 12;
+      return firstTwoNums.toString() + theRest + ' Pm';
+    }
+    return time + ' Am';
+  }
+
   Future<void> _getData() async {
     var parameters = {
       'city': 'Jeddah',
@@ -49,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // print('Response body: ${response.body}');
     _times = jsonDecode(response.body)['data']['timings'] as Map;
     print('Response body: ${_times}');
+
     setState(() {});
     print(_times.values);
   }
@@ -62,12 +74,12 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.green[200],
-              Colors.green[300],
+              Colors.green[200].withOpacity(.7),
+              Colors.green[300].withOpacity(.7),
             ],
           ),
           border: Border.all(
-            width: 2,
+            width: 1,
             color: Colors.green,
           ),
         ),
@@ -88,74 +100,112 @@ class _MyHomePageState extends State<MyHomePage> {
         //       end: Alignment.centerLeft,
         //       colors: [
         //         Colors.green[200],
-        //         Colors.green[300],
+        //         Colors.blue[100],
         //       ],
         //     ),
         //   ),
         // ),
       ),
-      body: Center(
-          child: Row(
-        children: [
-          Flexible(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: keys
-                  .map(
-                    (e) => buildCellContainer(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/pic-for-flutter-times.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Container(
+            width: double.infinity,
+            child: ListView.builder(
+              physics: ClampingScrollPhysics(),
+              itemBuilder: (ctx, index) {
+                var keys = _times.keys.toList();
+                var values = _times.values.toList();
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: buildCellContainer(
+                        child: Text(keys[index]),
                         padding: 16,
-                        child:
-                            FittedBox(fit: BoxFit.scaleDown, child: Text(e))),
-                  )
-                  .toList(),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: buildCellContainer(
+                        child: Text(convertToPmAm(values[index])),
+                        padding: 16,
+                      ),
+                    )
+                  ],
+                );
+              },
+              itemCount: _times.length,
             ),
           ),
-          Flexible(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: values
-                  .map(
-                    (e) => buildCellContainer(
-                        padding: 16,
-                        child: Text(
-                          e,
-                          textAlign: TextAlign.center,
-                        )),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      )
-          // GridView.builder(
-          //   gridDelegate:
-          //       SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-          //   itemBuilder: (ctx, index) {
-          //     var keys = _times.keys.toList();
-          //     var values = _times.values.toList();
-          //     return buildCellContainer(
-          //         padding: 0,
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.start,
-          //           children: [
-          //             buildCellContainer(
-          //               child: Text(keys[index]),
-          //               padding: 0,
-          //             ),
-          //             Expanded(
-          //               child: buildCellContainer(
-          //                 child: Text(values[index]),
-          //                 padding: 0,
-          //               ),
-          //             )
-          //           ],
-          //         ));
-          //   },
-          //   itemCount: _times.length,
-          // ),
-          ),
+        ),
+        //     Row(
+        //   children: [
+        //     Flexible(
+        //       flex: 1,
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+        //         children: keys
+        //             .map(
+        //               (e) => buildCellContainer(
+        //                   padding: 16,
+        //                   child:
+        //                       FittedBox(fit: BoxFit.scaleDown, child: Text(e))),
+        //             )
+        //             .toList(),
+        //       ),
+        //     ),
+        //     Flexible(
+        //       flex: 4,
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+        //         children: values
+        //             .map(
+        //               (e) => buildCellContainer(
+        //                   padding: 16,
+        //                   child: Text(
+        //                     e,
+        //                     textAlign: TextAlign.center,
+        //                   )),
+        //             )
+        //             .toList(),
+        //       ),
+        //     ),
+        //   ],
+        // )
+        // GridView.builder(
+        //   gridDelegate:
+        //       SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        //   itemBuilder: (ctx, index) {
+        //     var keys = _times.keys.toList();
+        //     var values = _times.values.toList();
+        //     return buildCellContainer(
+        //         padding: 0,
+        //         child: Row(
+        //           mainAxisAlignment: MainAxisAlignment.start,
+        //           children: [
+        //             buildCellContainer(
+        //               child: Text(keys[index]),
+        //               padding: 0,
+        //             ),
+        //             Expanded(
+        //               child: buildCellContainer(
+        //                 child: Text(values[index]),
+        //                 padding: 0,
+        //               ),
+        //             )
+        //           ],
+        //         ));
+        //   },
+        //   itemCount: _times.length,
+        // ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _getData,
         tooltip: 'getData',
