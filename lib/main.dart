@@ -74,14 +74,14 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.green[200].withOpacity(.7),
-              Colors.green[300].withOpacity(.7),
+              Colors.green[200].withOpacity(.2),
+              Colors.green[300].withOpacity(.2),
             ],
           ),
-          border: Border.all(
-            width: 1,
-            color: Colors.green,
-          ),
+          // border: Border.all(
+          //   width: 1,
+          //   color: Colors.green,
+          // ),
         ),
         child: child);
   }
@@ -107,12 +107,12 @@ class _MyHomePageState extends State<MyHomePage> {
         // ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/pic-for-flutter-times.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
+        // decoration: BoxDecoration(
+        //   image: DecorationImage(
+        //     image: AssetImage("assets/images/pic-for-flutter-times.jpg"),
+        //     fit: BoxFit.cover,
+        //   ),
+        // ),
         child: Center(
           child: Container(
             width: double.infinity,
@@ -121,22 +121,43 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: (ctx, index) {
                 var keys = _times.keys.toList();
                 var values = _times.values.toList();
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                return Column(
                   children: [
-                    Expanded(
-                      flex: 1,
-                      child: buildCellContainer(
-                        child: Text(keys[index]),
-                        padding: 16,
+                    Container(
+                      height: 50,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: buildCellContainer(
+                              child: Text(keys[index]),
+                              padding: 16,
+                            ),
+                          ),
+                          VerticalDivider(
+                            width: 0,
+                            thickness: 1,
+                            color: Colors.green,
+                            endIndent: 0,
+                            indent: 0,
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: buildCellContainer(
+                              child: Text(convertToPmAm(values[index])),
+                              padding: 16,
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: buildCellContainer(
-                        child: Text(convertToPmAm(values[index])),
-                        padding: 16,
-                      ),
+                    Divider(
+                      indent: 0,
+                      endIndent: 0,
+                      thickness: 1,
+                      color: Colors.green,
+                      height: 0,
                     )
                   ],
                 );
@@ -145,66 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        //     Row(
-        //   children: [
-        //     Flexible(
-        //       flex: 1,
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.stretch,
-        //         children: keys
-        //             .map(
-        //               (e) => buildCellContainer(
-        //                   padding: 16,
-        //                   child:
-        //                       FittedBox(fit: BoxFit.scaleDown, child: Text(e))),
-        //             )
-        //             .toList(),
-        //       ),
-        //     ),
-        //     Flexible(
-        //       flex: 4,
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.stretch,
-        //         children: values
-        //             .map(
-        //               (e) => buildCellContainer(
-        //                   padding: 16,
-        //                   child: Text(
-        //                     e,
-        //                     textAlign: TextAlign.center,
-        //                   )),
-        //             )
-        //             .toList(),
-        //       ),
-        //     ),
-        //   ],
-        // )
-        // GridView.builder(
-        //   gridDelegate:
-        //       SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        //   itemBuilder: (ctx, index) {
-        //     var keys = _times.keys.toList();
-        //     var values = _times.values.toList();
-        //     return buildCellContainer(
-        //         padding: 0,
-        //         child: Row(
-        //           mainAxisAlignment: MainAxisAlignment.start,
-        //           children: [
-        //             buildCellContainer(
-        //               child: Text(keys[index]),
-        //               padding: 0,
-        //             ),
-        //             Expanded(
-        //               child: buildCellContainer(
-        //                 child: Text(values[index]),
-        //                 padding: 0,
-        //               ),
-        //             )
-        //           ],
-        //         ));
-        //   },
-        //   itemCount: _times.length,
-        // ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _getData,
