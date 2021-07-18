@@ -44,6 +44,14 @@ class MyHomePage extends StatelessWidget {
 
   var _timeings = {};
 
+  void _playAzan() {
+    player.play('azan1.mp3');
+  }
+
+  void _stopAzan() {
+    audioPlayer.stop();
+  }
+
   String convertToPmAm(String time) {
     return DateFormat.jm().format(DateFormat('hh:mm').parse(time));
   }
@@ -94,7 +102,8 @@ class MyHomePage extends StatelessWidget {
     print(now);
     print(timing);
     print(timing == now);
-    player.play('azan1.mp3');
+
+    _playAzan();
 
     if (timing == now) {}
   }
@@ -117,7 +126,7 @@ class MyHomePage extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                audioPlayer.stop();
+                _stopAzan();
               },
               icon: Icon(Icons.stop))
         ],
