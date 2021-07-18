@@ -37,13 +37,13 @@ class _Screen1State extends State<Screen1> {
         'api.aladhan.com', '/v1/timingsByCity/:date_or_timestamp', parameters);
 
     var response = await http.get(url);
-    print('Response status: ${response.statusCode}');
+    // print('Response status: ${response.statusCode}');
     // print('Response body: ${response.body}');
     _times = jsonDecode(response.body)['data']['timings'] as Map;
-    print('Response body: ${_times}');
+    // print('Response body: ${_times}');
 
     setState(() {});
-    print(_times.values);
+    // print(_times.values);
   }
 
   Widget buildCellContainer({

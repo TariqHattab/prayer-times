@@ -4,6 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:new_app/constants.dart';
+import 'package:new_app/timings_table.dart';
+import 'package:intl/intl.dart';
+
+import 'package:audioplayers/audioplayers.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,33 +20,32 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        textTheme: Theme.of(context).textTheme.apply(
+              // bodyColor: Color(0xFF3f16c3),
+              bodyColor: Colors.teal[900],
+
+              displayColor: Color(0xFF1a01b9),
+            ),
         primarySwatch: Colors.green,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Prayer Timings'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
+  final audioPlayer = AudioPlayer();
 
-class _MyHomePageState extends State<MyHomePage> {
-  var _times = {};
+  static AudioCache player;
+
+  var _timeings = {};
+
   String convertToPmAm(String time) {
-    var firstTwoNums = int.parse(time.substring(0, 2));
-    var theRest = time.substring(2);
-
-    if (firstTwoNums > 12) {
-      firstTwoNums -= 12;
-      return firstTwoNums.toString() + theRest + ' Pm';
-    }
-    return time + ' Am';
+    return DateFormat.jm().format(DateFormat('hh:mm').parse(time));
   }
 
   Future<void> _getData() async {
@@ -52,17 +56,14 @@ class _MyHomePageState extends State<MyHomePage> {
       'method': jsonEncode(4),
       'midnightMode': jsonEncode(1),
     };
-    var url = Uri.https(
-        'api.aladhan.com', '/v1/timingsByCity/:date_or_timestamp', parameters);
+    var url = Uri.https('api.aladhan.com',
+        '/v1/timingsByCity/:date_or_timeingstamp', parameters);
 
-    var response = await http.get(url);
-    print('Response status: ${response.statusCode}');
-    // print('Response body: ${response.body}');
-    _times = jsonDecode(response.body)['data']['timings'] as Map;
-    print('Response body: ${_times}');
+    return await http.get(url);
 
-    setState(() {});
-    print(_times.values);
+    // _timeings = jsonDecode(response.body)['data']['timings'] as Map;
+
+    // setState(() {});
   }
 
   Widget buildCellContainer({
@@ -86,91 +87,180 @@ class _MyHomePageState extends State<MyHomePage> {
         child: child);
   }
 
+  Future<void> _triggerAt(String time) {
+    var now = DateFormat('h:mm a').format(DateTime.now());
+    var timing = DateFormat.jm().format(DateFormat('hh:mm').parse('21:19'));
+
+    print(now);
+    print(timing);
+    print(timing == now);
+    player.play('azan1.mp3');
+
+    if (timing == now) {}
+  }
+
   @override
   Widget build(BuildContext context) {
-    var keys = _times.keys.toList();
-    var values = _times.values.toList();
+// in your State
+    player = new AudioCache(fixedPlayer: audioPlayer);
+
+    var keys = _timeings.keys.toList();
+    var values = _timeings.values.toList();
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        // flexibleSpace: Container(
-        //   decoration: BoxDecoration(
-        //     gradient: LinearGradient(
-        //       begin: Alignment.centerRight,
-        //       end: Alignment.centerLeft,
-        //       colors: [
-        //         Colors.green[200],
-        //         Colors.blue[100],
-        //       ],
-        //     ),
-        //   ),
-        // ),
-      ),
-      body: Container(
-        // decoration: BoxDecoration(
-        //   image: DecorationImage(
-        //     image: AssetImage("assets/images/pic-for-flutter-times.jpg"),
-        //     fit: BoxFit.cover,
-        //   ),
-        // ),
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            child: ListView.builder(
-              physics: ClampingScrollPhysics(),
-              itemBuilder: (ctx, index) {
-                var keys = _times.keys.toList();
-                var values = _times.values.toList();
-                return Column(
-                  children: [
-                    Container(
-                      height: 50,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: buildCellContainer(
-                              child: Text(keys[index]),
-                              padding: 16,
-                            ),
-                          ),
-                          VerticalDivider(
-                            width: 0,
-                            thickness: 1,
-                            color: Colors.green,
-                            endIndent: 0,
-                            indent: 0,
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: buildCellContainer(
-                              child: Text(convertToPmAm(values[index])),
-                              padding: 16,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      indent: 0,
-                      endIndent: 0,
-                      thickness: 1,
-                      color: Colors.green,
-                      height: 0,
-                    )
-                  ],
-                );
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.headline5,
+        ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                audioPlayer.stop();
               },
-              itemCount: _times.length,
-            ),
-          ),
+              icon: Icon(Icons.stop))
+        ],
+        flexibleSpace: Container(
+          decoration: BoxDecoration(gradient: primaryGradient),
         ),
       ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(gradient: secondaryGradient),
+          ),
+          FutureBuilder(
+              future: _getData(),
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  _timeings =
+                      jsonDecode(snapshot.data.body)['data']['timings'] as Map;
+                  return SizedBox.expand(
+                    child: LayoutBuilder(
+                      builder: (ctx, constraints) {
+                        var biggest = constraints.biggest;
+
+                        return TimingsTable(
+                            buildListOfDataRaw: _buildListOfDataRaw,
+                            size: biggest,
+                            timingsLength: _timeings.length);
+                      },
+                    ),
+                  );
+                }
+              })
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getData,
+        onPressed: () {
+          _triggerAt('08:01');
+        },
         tooltip: 'getData',
-        child: Icon(Icons.add),
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: primaryGradient,
+          ),
+          child: Icon(Icons.add),
+        ),
+      ),
+    );
+  }
+
+  List<DataRow> _buildListOfDataRaw(BuildContext context) {
+    return List.generate(_timeings.length, (index) {
+      var keys = _timeings.keys.toList();
+      var values = _timeings.values.toList();
+      return DataRow(
+        cells: [
+          DataCell(
+            Text(
+              keys[index],
+              style:
+                  Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 27),
+            ),
+          ),
+          DataCell(
+            Text(
+              convertToPmAm(
+                values[index],
+              ),
+              style:
+                  Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 27),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Container _buildOldTeable() {
+    return Container(
+      // decoration: BoxDecoration(
+      //   image: DecorationImage(
+      //     image: AssetImage("assets/images/pic-for-flutter-times.jpg"),
+      //     fit: BoxFit.cover,
+      //   ),
+      // ),
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          child: ListView.builder(
+            physics: ClampingScrollPhysics(),
+            itemBuilder: (ctx, index) {
+              var keys = _timeings.keys.toList();
+              var values = _timeings.values.toList();
+              return Column(
+                children: [
+                  Container(
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: buildCellContainer(
+                            child: Text(keys[index]),
+                            padding: 16,
+                          ),
+                        ),
+                        VerticalDivider(
+                          width: 0,
+                          thickness: 1,
+                          color: Colors.green,
+                          endIndent: 0,
+                          indent: 0,
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: buildCellContainer(
+                            child: Text(convertToPmAm(values[index])),
+                            padding: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Divider(
+                    indent: 0,
+                    endIndent: 0,
+                    thickness: 1,
+                    color: Colors.green,
+                    height: 0,
+                  )
+                ],
+              );
+            },
+            itemCount: _timeings.length,
+          ),
+        ),
       ),
     );
   }
