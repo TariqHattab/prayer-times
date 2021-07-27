@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:new_app/constants.dart';
+import 'package:new_app/screen_1.dart';
 import 'package:new_app/timings_table.dart';
 import 'package:intl/intl.dart';
 
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
             ),
         primarySwatch: Colors.green,
       ),
-      home: MyHomePage(title: 'Prayer Timings'),
+      home: Screen1(),
+      // MyHomePage(title: 'Prayer Timings'),
     );
   }
 }
@@ -37,9 +39,7 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
-
   final audioPlayer = AudioPlayer();
-
   static AudioCache player;
 
   var _timeings = {};
